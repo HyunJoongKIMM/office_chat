@@ -127,11 +127,33 @@
         border-radius: 0;
       }
     }
+
+    #notice {
+      background: linear-gradient(90deg, #ff4e50, #f9d423);
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(255, 78, 80, 0.6);
+      text-align: center;
+      animation: pulse 2s infinite alternate;
+    }
+    
+    @keyframes pulse {
+      from { box-shadow: 0 0 10px #ff4e50; }
+      to { box-shadow: 0 0 20px #f9d423; }
+    }
   </style>
 </head>
 <body>
   <div class="chat-container">
     <div class="chat-header">💬 Office Chat</div>
+    <!-- 공지사항 -->
+  <div id="notice">
+    <strong>공지:</strong> 새로고침하면 내용 사라져요 ~ 🛠️
+  </div>
     <div id="messages"></div>
     <div class="chat-input">
       <input id="input" autocomplete="off" placeholder="메시지 입력..." />
