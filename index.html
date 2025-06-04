@@ -167,6 +167,23 @@
     const messages = document.getElementById('messages');
     const input = document.getElementById('input');
 
+    let myName = '';
+
+    // 이름 입력 및 중복 체크
+    function promptName() {
+      const name = prompt("이름을 입력하세요") || "익명";
+      socket.emit('set_name', { name });
+    }
+
+    socket.on('name_error', (data) => {
+      alert(data.error);
+      promptName();  // 다시 이름 입력
+    });
+
+    window.onload = () => {
+      promptName();
+    };
+
     function sendMessage() {
       const msg = input.value.trim();
       if (msg !== '') {
@@ -175,6 +192,7 @@
       }
     }
 
+    // 일반 채팅 메시지
     socket.on('message', data => {
       const isMine = data.id === socket.id;
       const wrapper = document.createElement('div');
@@ -182,7 +200,7 @@
 
       const sender = document.createElement('div');
       sender.className = 'sender';
-      sender.textContent = isMine ? '현중' : '찬호';
+      sender.textContent = data.name;
 
       const bubble = document.createElement('div');
       bubble.className = `message ${isMine ? 'mine' : 'others'}`;
@@ -191,6 +209,20 @@
       wrapper.appendChild(sender);
       wrapper.appendChild(bubble);
       messages.appendChild(wrapper);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // 입장/퇴장 안내 메시지
+    socket.on('notice', data => {
+      const notice = document.createElement('div');
+      notice.textContent = data.msg;
+      notice.style = `
+        text-align: center;
+        font-weight: bold;
+        color: #f57c00;
+        margin: 10px 0;
+      `;
+      messages.appendChild(notice);
       messages.scrollTop = messages.scrollHeight;
     });
 
