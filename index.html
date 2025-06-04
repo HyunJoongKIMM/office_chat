@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Office Chat</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat-container {
+      background: white;
+      /* 👉 여기가 전체 채팅 박스 크기 */
+      width: 80vw;     /* 너비 비율 조절: 100vw = 전체 너비 */
+      height: 85vh;    /* 높이 비율 조절: 100vh = 전체 높이 */
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+        display: inline-block;
+        max-width: 100%;
+        padding: 12px 18px;
+        border-radius: 18px;
+        font-size: 16px;
+        white-space: normal;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+        line-height: 1.4;
+      }
+      
+      
+
+    .mine-wrapper {
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .others-wrapper {
+      align-self: flex-start;
+      text-align: left;
+    }
+
+    .mine {
+      background-color: #e0e0e0;
+      color: black;
+      border-bottom-right-radius: 0;
+    }
+
+    .others {
+      background-color: #4a90e2;
+      color: white;
+      border-bottom-left-radius: 0;
+    }
+
+    .sender {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 3px;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    #input {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      padding: 0 30px;
+      border: none;
+      background-color: #4a90e2;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #357abd;
+    }
+
+    @media (max-width: 600px) {
+      .chat-container {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">💬 Office Chat</div>
+    <div id="messages"></div>
+    <div class="chat-input">
+      <input id="input" autocomplete="off" placeholder="메시지 입력..." />
+      <button onclick="sendMessage()">보내기</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (msg !== '') {
+        socket.emit('message', msg);
+        input.value = '';
+      }
+    }
+
+    socket.on('message', data => {
+      const isMine = data.id === socket.id;
+      const wrapper = document.createElement('div');
+      wrapper.className = isMine ? 'mine-wrapper' : 'others-wrapper';
+
+      const sender = document.createElement('div');
+      sender.className = 'sender';
+      sender.textContent = isMine ? '현중' : '찬호';
+
+      const bubble = document.createElement('div');
+      bubble.className = `message ${isMine ? 'mine' : 'others'}`;
+      bubble.textContent = data.msg;
+
+      wrapper.appendChild(sender);
+      wrapper.appendChild(bubble);
+      messages.appendChild(wrapper);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
